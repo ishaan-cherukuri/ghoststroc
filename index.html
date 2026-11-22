@@ -2,41 +2,78 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Ghoststroc</title>
     <style>
-      body { background: #0b0a10; color: #cfd6e4; font: 13px/1.4 ui-monospace, Menlo, monospace; margin: 12px; overflow: hidden; }
-      #wrap { display: flex; gap: 20px; align-items: flex-start; }
-      canvas#screen { image-rendering: pixelated; display: block; }
-      fieldset { border: 1px solid #5a6376; margin: 0 0 12px; padding: 8px 10px; }
-      legend { color: #5a6376; }
-      label { display: flex; justify-content: space-between; gap: 8px; margin: 3px 0; }
-      input[type=number] { width: 4em; background: #1a1726; color: #cfd6e4; border: 1px solid #5a6376; }
-      input[type=color] { width: 3em; height: 1.6em; border: 0; padding: 0; background: none; }
-      button { background: #1a1726; color: #cfd6e4; border: 1px solid #5a6376; padding: 3px 8px; cursor: pointer; }
-      #status, #log { white-space: pre; }
-      #banner { font-size: 18px; min-height: 1.6em; margin-bottom: 8px; }
-      kbd { border: 1px solid #5a6376; padding: 0 4px; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; overflow: hidden; background: #000; color: #f4efe2;
+        font: 14px/1.35 ui-sans-serif, system-ui, -apple-system, sans-serif; }
+      #game, #game canvas { position: fixed; inset: 0; display: block; }
+      .panel-box { background: rgba(20, 16, 12, 0.72); border: 1px solid rgba(255, 236, 200, 0.18);
+        border-radius: 12px; padding: 10px 14px; backdrop-filter: blur(6px); }
+      #hud-mine, #hud-town { position: fixed; top: 14px; left: 14px; display: none; min-width: 300px; }
+      #battery { height: 14px; background: rgba(255,255,255,0.12); border-radius: 7px; overflow: hidden; margin: 6px 0 2px; }
+      #battery-fill { height: 100%; background: linear-gradient(90deg, #7fe08a, #b8f27a); transition: width .2s; }
+      #battery-fill.mid { background: linear-gradient(90deg, #f2c94c, #f2e04c); }
+      #battery-fill.low { background: linear-gradient(90deg, #ff5a4a, #ff8a3c); animation: pulse .6s infinite alternate; }
+      @keyframes pulse { to { opacity: .45; } }
+      .label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
+      .ore { margin-right: 12px; font-weight: 600; }
+      .ore.copper { color: #f08a4b; } .ore.iron { color: #c4ccd6; } .ore.gold { color: #ffd34d; } .ore.steel { color: #9fd1ff; }
+      .cap { opacity: .7; }
+      #lamp-wrap { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); width: min(720px, 90vw); text-align: center; }
+      #lamp { font-weight: 600; }
+      #lamp.red { color: #ff6b6b; } #lamp.cyan { color: #5fe3e8; } #lamp.off { color: #d8cfbd; font-weight: 400; font-size: 12px; }
+      #lamp-bar { height: 4px; background: rgba(255,255,255,.12); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+      #lamp-progress { height: 100%; width: 0; background: currentColor; }
+      #lamp.red + #lamp-bar #lamp-progress { background: #ff6b6b; } #lamp.cyan + #lamp-bar #lamp-progress { background: #5fe3e8; }
+      #compass { position: fixed; top: 10px; right: 14px; width: 84px; height: 84px; }
+      #prompt { position: fixed; top: 58%; left: 50%; transform: translateX(-50%); display: none;
+        background: rgba(20,16,12,.8); padding: 6px 14px; border-radius: 999px; font-weight: 600; }
+      #toasts { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 6px; align-items: center; pointer-events: none; }
+      .toast { background: rgba(20,16,12,.85); padding: 7px 14px; border-radius: 10px; transition: opacity .8s; border-left: 3px solid #d8cfbd; }
+      .toast.good { border-color: #7fe08a; } .toast.bad { border-color: #ff6b4a; } .toast.fade { opacity: 0; }
+      #map { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; border-radius: 10px; box-shadow: 0 10px 60px rgba(0,0,0,.7); }
+      #panel { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; width: min(620px, 92vw);
+        background: #2a1f15; border: 2px solid #7a5a32; border-radius: 14px; padding: 18px 22px; box-shadow: 0 10px 60px rgba(0,0,0,.6); }
+      #panel h2 { margin: 0 0 2px; color: #ffd38a; }
+      #panel .sub { margin: 0 0 12px; opacity: .8; }
+      #panel .row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-top: 1px solid rgba(255,255,255,.08); }
+      #panel .row span { flex: 1; }
+      #panel button { background: #e0a54a; color: #2a1f15; border: 0; border-radius: 8px; padding: 6px 12px; font-weight: 700; cursor: pointer; }
+      #panel button:disabled { background: #5a4a38; color: #9a8a72; cursor: not-allowed; }
+      #panel .hint { margin-top: 10px; font-size: 12px; opacity: .6; }
+      #help { position: fixed; bottom: 12px; right: 14px; font-size: 11px; opacity: .75; text-align: right; line-height: 1.6; }
+      kbd { background: rgba(255,255,255,.14); border-radius: 4px; padding: 0 5px; font-family: inherit; }
+      #dark { position: fixed; inset: 0; background: #000; opacity: 0; pointer-events: none; transition: opacity .3s; }
     </style>
   </head>
   <body>
-    <div id="wrap">
-      <div><div id="banner"></div><canvas id="screen"></canvas></div>
-      <div style="width: 280px; max-height: calc(100vh - 24px); overflow-y: auto">
-        <fieldset>
-          <legend>keys</legend>
-          <div><kbd>←↑↓→</kbd>/<kbd>WASD</kbd> move one tile</div>
-          <div><kbd>1</kbd>/<kbd>R</kbd> flash red (matter)</div>
-          <div><kbd>2</kbd>/<kbd>C</kbd> flash cyan (support)</div>
-          <div><kbd>Space</kbd> wait one turn</div>
-          <div><kbd>Enter</kbd>/<kbd>Backspace</kbd> new run</div>
-        </fieldset>
-        <fieldset><legend>state</legend><div id="status"></div></fieldset>
-        <fieldset><legend>log</legend><div id="log"></div></fieldset>
-        <details><summary>tuning (eye-tuned)</summary>
-          <fieldset id="fade"><legend>fade</legend></fieldset>
-          <fieldset id="palette"><legend>palette</legend></fieldset>
-        </details>
-      </div>
+    <div id="game"></div>
+    <div id="dark"></div>
+    <div id="hud-mine" class="panel-box">
+      <div class="label" id="depth">Depth 1</div>
+      <div class="label" style="margin-top:6px">Battery <span id="battery-text" style="float:right"></span></div>
+      <div id="battery"><div id="battery-fill"></div></div>
+      <div class="label" style="margin-top:8px">Bag</div>
+      <div id="bag"></div>
+      <div class="label" style="margin-top:6px">Money <span id="money" style="float:right; opacity:1"></span></div>
+    </div>
+    <div id="hud-town" class="panel-box">
+      <div class="label">Money</div>
+      <div id="town-money" style="font-size: 22px; font-weight: 700; color: #ffd34d"></div>
+      <div class="label" style="margin-top:6px">Stash</div>
+      <div id="stash"></div>
+    </div>
+    <div id="lamp-wrap" class="panel-box"><div id="lamp" class="off"></div><div id="lamp-bar"><div id="lamp-progress"></div></div></div>
+    <canvas id="compass"></canvas>
+    <div id="prompt"></div>
+    <div id="toasts"></div>
+    <canvas id="map"></canvas>
+    <div id="panel"></div>
+    <div id="help">
+      <kbd>WASD</kbd>/<kbd>←↑↓→</kbd> move · <kbd>Q</kbd><kbd>E</kbd> turn camera · <kbd>F</kbd> use<br />
+      <kbd>1</kbd> red lamp · <kbd>2</kbd> cyan lamp · <kbd>Space</kbd> mine · <kbd>M</kbd> map · <kbd>Esc</kbd> close
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
