@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Ghoststroc — stage 1 fusion prototype</title>
+    <style>
+      body { background: #0b0a10; color: #cfd6e4; font: 13px/1.4 ui-monospace, Menlo, monospace; margin: 16px; }
+      #wrap { display: flex; gap: 20px; align-items: flex-start; }
+      canvas#screen { image-rendering: pixelated; display: block; }
+      fieldset { border: 1px solid #5a6376; margin: 0 0 12px; padding: 8px 10px; }
+      legend { color: #5a6376; }
+      label { display: flex; justify-content: space-between; gap: 8px; margin: 3px 0; }
+      input[type=number] { width: 4em; background: #1a1726; color: #cfd6e4; border: 1px solid #5a6376; }
+      input[type=color] { width: 3em; height: 1.6em; border: 0; padding: 0; background: none; }
+      button { background: #1a1726; color: #cfd6e4; border: 1px solid #5a6376; padding: 3px 8px; cursor: pointer; }
+      #status { white-space: pre; }
+      kbd { border: 1px solid #5a6376; padding: 0 4px; }
+    </style>
+  </head>
+  <body>
+    <div id="wrap">
+      <canvas id="screen"></canvas>
+      <div style="min-width: 260px">
+        <fieldset>
+          <legend>keys</legend>
+          <div><kbd>1</kbd>/<kbd>R</kbd> flash red (matter)</div>
+          <div><kbd>2</kbd>/<kbd>C</kbd> flash cyan (support)</div>
+          <div><kbd>Space</kbd> wait one turn</div>
+          <div><kbd>Backspace</kbd> reset room</div>
+          <div><kbd>T</kbd> hold: answer check (prototype only)</div>
+        </fieldset>
+        <fieldset><legend>state</legend><div id="status"></div></fieldset>
+        <fieldset id="fade"><legend>fade (eye-tuned)</legend></fieldset>
+        <fieldset id="palette"><legend>palette (eye-tuned)</legend></fieldset>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
