@@ -2,9 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Ghoststroc — stage 1 fusion prototype</title>
+    <title>Ghoststroc</title>
     <style>
-      body { background: #0b0a10; color: #cfd6e4; font: 13px/1.4 ui-monospace, Menlo, monospace; margin: 16px; }
+      body { background: #0b0a10; color: #cfd6e4; font: 13px/1.4 ui-monospace, Menlo, monospace; margin: 12px; overflow: hidden; }
       #wrap { display: flex; gap: 20px; align-items: flex-start; }
       canvas#screen { image-rendering: pixelated; display: block; }
       fieldset { border: 1px solid #5a6376; margin: 0 0 12px; padding: 8px 10px; }
@@ -13,25 +13,29 @@
       input[type=number] { width: 4em; background: #1a1726; color: #cfd6e4; border: 1px solid #5a6376; }
       input[type=color] { width: 3em; height: 1.6em; border: 0; padding: 0; background: none; }
       button { background: #1a1726; color: #cfd6e4; border: 1px solid #5a6376; padding: 3px 8px; cursor: pointer; }
-      #status { white-space: pre; }
+      #status, #log { white-space: pre; }
+      #banner { font-size: 18px; min-height: 1.6em; margin-bottom: 8px; }
       kbd { border: 1px solid #5a6376; padding: 0 4px; }
     </style>
   </head>
   <body>
     <div id="wrap">
-      <canvas id="screen"></canvas>
-      <div style="min-width: 260px">
+      <div><div id="banner"></div><canvas id="screen"></canvas></div>
+      <div style="width: 280px; max-height: calc(100vh - 24px); overflow-y: auto">
         <fieldset>
           <legend>keys</legend>
+          <div><kbd>←↑↓→</kbd>/<kbd>WASD</kbd> move one tile</div>
           <div><kbd>1</kbd>/<kbd>R</kbd> flash red (matter)</div>
           <div><kbd>2</kbd>/<kbd>C</kbd> flash cyan (support)</div>
           <div><kbd>Space</kbd> wait one turn</div>
-          <div><kbd>Backspace</kbd> reset room</div>
-          <div><kbd>T</kbd> hold: answer check (prototype only)</div>
+          <div><kbd>Enter</kbd>/<kbd>Backspace</kbd> new run</div>
         </fieldset>
         <fieldset><legend>state</legend><div id="status"></div></fieldset>
-        <fieldset id="fade"><legend>fade (eye-tuned)</legend></fieldset>
-        <fieldset id="palette"><legend>palette (eye-tuned)</legend></fieldset>
+        <fieldset><legend>log</legend><div id="log"></div></fieldset>
+        <details><summary>tuning (eye-tuned)</summary>
+          <fieldset id="fade"><legend>fade</legend></fieldset>
+          <fieldset id="palette"><legend>palette</legend></fieldset>
+        </details>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

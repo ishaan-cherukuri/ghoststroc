@@ -1,11 +1,11 @@
 import { DEFAULT_LAMP_CONFIG, LAMP_DEFAULTS, rampStep } from '../src/sim/lamps';
-import { initialState, step } from '../src/sim/turn';
+import { newGame, step } from '../src/sim/game';
 import { RAMPS } from '../src/art/render';
 
 const cfg = DEFAULT_LAMP_CONFIG;
 
 function levelsAfterFlash(turns: number, c = cfg): number[] {
-  let s = step(initialState(), { type: 'flash', channel: 'red' }, c);
+  let s = step(newGame(), { type: 'flash', channel: 'red' }, c);
   const out = [s.lamps.red.level];
   for (let i = 1; i < turns; i++) {
     s = step(s, { type: 'wait' }, c);
@@ -42,7 +42,7 @@ describe('decay (§9.6)', () => {
   });
 
   it('flashing one channel decays the other, and re-flashing refreshes to full', () => {
-    let s = step(initialState(), { type: 'flash', channel: 'red' }, cfg);
+    let s = step(newGame(), { type: 'flash', channel: 'red' }, cfg);
     s = step(s, { type: 'flash', channel: 'cyan' }, cfg);
     expect(s.lamps.red.level).toBe(4);
     expect(s.lamps.cyan.level).toBe(5);

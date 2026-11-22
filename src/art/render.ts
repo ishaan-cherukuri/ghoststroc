@@ -1,7 +1,8 @@
 import { rampStep, type LampConfig, type LampState } from '../sim/lamps';
-import type { Grid } from '../sim/types';
+import type { ExitKind } from '../sim/levels';
+import type { Grid, Point } from '../sim/types';
 import { indexOf } from './palette';
-import { LAYER_MATTER, LAYER_SUPPORT, MARK_EXIT, MARK_START } from './tiles';
+import { LAYER_LIFT, LAYER_MATTER, LAYER_STAIRS, LAYER_SUPPORT, OVERLAY_CRACK, PLAYER } from './tiles';
 
 // ---- Render constants -----------------------------------------------------
 export const LOGICAL_W = 320;
@@ -21,11 +22,23 @@ export interface View {
   readonly grid: Grid;
   readonly lamps: LampState;
   readonly cfg: LampConfig;
+  readonly exitKind: ExitKind;
+  readonly player: Point | null;
+  readonly cracked: boolean;
 }
 
 function rampChar(ramp: readonly string[], level: number, cfg: LampConfig): string | null {
   const s = rampStep(level, cfg, ramp.length);
   return s === null ? null : (ramp[s] as string);
+}
+
+function stamp(out: Uint8Array, sprite: readonly string[], p: Point): void {
+  for (let py = 0; py < TILE; py++) {
+    for (let px = 0; px < TILE; px++) {
+      const c = sprite[py]?.[px] ?? '.';
+      if (c !== '.') out[(p.y * TILE + py) * LOGICAL_W + p.x * TILE + px] = indexOf(c);
+    }
+  }
 }
 
 /**
@@ -39,13 +52,15 @@ export function renderIndices(v: View): Uint8Array {
   const redCh = rampChar(RAMPS.red, red, v.cfg);
   const cyanCh = rampChar(RAMPS.cyan, cyan, v.cfg);
   const overCh = rampChar(RAMPS.overlap, Math.min(red, cyan), v.cfg);
+  const exitLayer = v.exitKind === 'lift' ? LAYER_LIFT : LAYER_STAIRS;
   for (let ty = 0; ty < v.grid.height; ty++) {
     for (let tx = 0; tx < v.grid.width; tx++) {
       const tile = v.grid.tiles[ty * v.grid.width + tx];
       if (!tile) continue;
+      const matter = tx === v.grid.exit.x && ty === v.grid.exit.y ? exitLayer : LAYER_MATTER;
       for (let py = 0; py < TILE; py++) {
         for (let px = 0; px < TILE; px++) {
-          const m = redCh !== null && tile.matter && LAYER_MATTER[py]?.[px] !== '.';
+          const m = redCh !== null && tile.matter && matter[py]?.[px] !== '.';
           const s = cyanCh !== null && tile.support && LAYER_SUPPORT[py]?.[px] !== '.';
           const ch = m && s ? overCh : m ? redCh : s ? cyanCh : null;
           if (ch !== null) out[(ty * TILE + py) * LOGICAL_W + tx * TILE + px] = indexOf(ch);
@@ -53,13 +68,9 @@ export function renderIndices(v: View): Uint8Array {
       }
     }
   }
-  for (const [sprite, p] of [[MARK_START, v.grid.start], [MARK_EXIT, v.grid.exit]] as const) {
-    for (let py = 0; py < TILE; py++) {
-      for (let px = 0; px < TILE; px++) {
-        const c = sprite[py]?.[px] ?? '.';
-        if (c !== '.') out[(p.y * TILE + py) * LOGICAL_W + p.x * TILE + px] = indexOf(c);
-      }
-    }
+  if (v.player) {
+    if (v.cracked) stamp(out, OVERLAY_CRACK, v.player);
+    stamp(out, PLAYER, v.player);
   }
   return out;
 }

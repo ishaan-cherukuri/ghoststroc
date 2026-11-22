@@ -44,45 +44,86 @@ export const LAYER_SUPPORT = [
   'YY............YY',
 ] as const;
 
-/** Prototype-only markers, always drawn in UI colour. Not walkability info. */
-export const MARK_START = [
-  '................',
-  '................',
-  '................',
-  '....uuuuuuuu....',
-  '...u........u...',
-  '...u.uuuuuu.u...',
-  '...u.u....u.u...',
-  '...u.u....u.u...',
-  '...u.u....u.u...',
-  '...u.u....u.u...',
-  '...u.uuuuuu.u...',
-  '...u........u...',
-  '....uuuuuuuu....',
-  '................',
+/** Stairs down: replaces the exit tile's matter layer, so it shows under red (§3.2). */
+export const LAYER_STAIRS = [
+  'XXX..........XXX',
+  'XXX..........XXX',
+  'XXXXXXXXXXXXXXXX',
+  'XXX..........XXX',
+  'XXX..........XXX',
+  'XXX..........XXX',
+  'XXXXXXXXXXXXXXXX',
+  'XXX..........XXX',
+  'XXX..........XXX',
+  'XXX..........XXX',
+  'XXXXXXXXXXXXXXXX',
+  'XXX..........XXX',
+  'XXX..........XXX',
+  'XXX..........XXX',
+  'XXXXXXXXXXXXXXXX',
+  'XXX..........XXX',
+] as const;
+
+/** Extraction lift: a cage with a cable. Replaces the exit's matter layer. */
+export const LAYER_LIFT = [
+  '.......XX.......',
+  '.......XX.......',
+  'XXXXXXXXXXXXXXXX',
+  'XXXXXXXXXXXXXXXX',
+  'XX..XX..XX..XX.X',
+  'XX..XX..XX..XX.X',
+  'XX..XX..XX..XX.X',
+  'XX..XX..XX..XX.X',
+  'XX..XX..XX..XX.X',
+  'XX..XX..XX..XX.X',
+  'XX..XX..XX..XX.X',
+  'XX..XX..XX..XX.X',
+  'XXXXXXXXXXXXXXXX',
+  'XXXXXXXXXXXXXXXX',
   '................',
   '................',
 ] as const;
 
-export const MARK_EXIT = [
-  '...uu......uu...',
-  '...uu......uu...',
-  '...uuuuuuuuuu...',
-  '...uu......uu...',
-  '...uu......uu...',
-  '...uuuuuuuuuu...',
-  '...uu......uu...',
-  '...uu......uu...',
-  '...uuuuuuuuuu...',
-  '...uu......uu...',
-  '...uu......uu...',
-  '...uuuuuuuuuu...',
-  '...uu......uu...',
-  '...uu......uu...',
-  '...uuuuuuuuuu...',
-  '...uu......uu...',
+/** Hazard-accent crack drawn on a hollow the player stands on (§7.3). */
+export const OVERLAY_CRACK = [
+  'hh............hh',
+  '.h............h.',
+  '.hh..........hh.',
+  '..h..........h..',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '................',
+  '..h..........h..',
+  '.hh..........hh.',
+  '.h............h.',
+  'hh............hh',
+] as const;
+
+/** Player: always overlap-white in both channels, read by its dark outline (§5.2). */
+export const PLAYER = [
+  '................',
+  '.....kkkkkk.....',
+  '....kWWWWWWk....',
+  '...kWWWWWWWWk...',
+  '...kkkkkkkkkk...',
+  '....kWkWWkWk....',
+  '....kWWWWWWk....',
+  '.....kkWWkk.....',
+  '....kWWWWWWk....',
+  '...kWWWWWWWWk...',
+  '..kWWkWWWWkWWk..',
+  '..kWkkWWWWkkWk..',
+  '..kk.kWWWWk.kk..',
+  '....kWWkkWWk....',
+  '....kWWkkWWk....',
+  '....kkkk.kkkk...',
 ] as const;
 
 export const ALL_SPRITES: Readonly<Record<string, readonly string[]>> = {
-  LAYER_MATTER, LAYER_SUPPORT, MARK_START, MARK_EXIT,
+  LAYER_MATTER, LAYER_SUPPORT, LAYER_STAIRS, LAYER_LIFT, OVERLAY_CRACK, PLAYER,
 };
